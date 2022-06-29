@@ -1,1 +1,4 @@
 /.idea/*
+/__pycache__/*
+/e_shop/__pycache__/*
+/media/*

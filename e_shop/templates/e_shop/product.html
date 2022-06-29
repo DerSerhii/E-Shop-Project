@@ -1,0 +1,42 @@
+{% extends 'e_shop/base.html' %}
+
+{% block content %}
+    <section class="container">
+        <div class="p-row">
+            <h1>{{product.name}}</h1>
+        </div>
+        <div class="p-row">
+            <div class="p-photo">
+                {% if product.photo %}
+                    <img class="img-product-left" src="{{product.photo.url}}">
+                {% endif %}
+            </div>
+            <div class="p-buy">
+                <p class="p-buy-row"><span class="price">{{ product.price }}</span> ₴</p>
+                {% if product.amount %}
+                    <p class="p-buy-row quantity">Quantity in stock: {{ product.amount }}</p>
+
+                    <form method="post" action="{% url 'product-buy' product.slug %}">
+                        {% csrf_token %}
+
+                        {% for f in buy_form %}
+                            <p><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</p>
+                            <div class="form-error">{{ f.errors }}</div>
+                        {% endfor %}
+
+                        <button type="submit">Buy it now</button>
+                    </form>
+                {% else %}
+                    <p class="p-buy-row quantity">The product isn't in stock, but delivery is expected soon</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="p-row">
+            <h2>Description</h2>
+            {% autoescape on %}
+                {{product.description|linebreaks}}
+            {% endautoescape %}
+        </div>
+    </section>
+
+{% endblock %}

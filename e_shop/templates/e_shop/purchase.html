@@ -1,0 +1,40 @@
+{% extends 'e_shop/base.html' %}
+
+{% block content %}
+
+    <ul class="list-products">
+
+        {% if purchases %}
+            {% for purchase in purchases %}
+                <li>
+                    <div class="product-panel">
+                        <p class="first">Invoice: #{{purchase.pk}}</p>
+                        <p class="last">Purchase time: {{purchase.time_purchase}}</p>
+                    </div>
+
+                    <div class="purchase">
+                        <p class="first-p">{{purchase.product}}</p>
+                        <p class="last-p">
+                            {{ purchase.amount }} x {{ purchase.price_at_time_purchase }} =
+                            {% widthratio purchase.amount 1 purchase.price_at_time_purchase %}
+                        </p>
+                    </div>
+
+                    <div class="clear"></div>
+
+                    <form method="post" action="{% url 'refund-purchase' purchase.pk %}">
+                        {% csrf_token %}
+                        <input class="link-buy-product" type="submit" value="Refund">
+                    </form>
+
+                    {% if msg_request_refund.0 == purchase.pk %}
+                        <p>{{ msg_request_refund.1 }}</p>
+                    {% endif %}
+                    <br>
+            {% endfor %}
+        {% else %}
+            <h3>You don't have any purchases yet</h3>
+        {% endif %}
+    </ul>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'e_shop/base.html' %}
+
+{% block content %}
+
+    <ul class="list-products">
+
+        {% if products %}
+            {% for product in products %}
+                <li>
+                    <div class="product-panel">
+                        <p class="first">Category: {{product.category}}</p>
+                        {% if user.is_superuser %}
+                            <p class="last">Available on site:{% if product.is_available %} Yes {% else %} No {% endif %} | Quantity in stock: {{product.amount}}</p>
+                        {% else %}
+                            {% if product.amount %}
+                                <p class="last">Quantity in stock: {{product.amount}}</p>
+                            {% else %}
+                                <p class="last">Delivery expected soon</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    {% if product.photo %}
+                        <p><img class="img-product-left thumb" src="{{product.photo.url}}"></p>
+                    {% endif %}
+
+                    <h2>{{ product.name }}</h2>
+                    <h3>{{ product.price }} ₴</h3>
+
+                    {% autoescape on %}
+                        {{product.description|linebreaks|truncatewords:50}}
+                    {% endautoescape %}
+
+                    <div class="clear"></div>
+
+                    {% if user.is_superuser %}
+                        <p class="link-buy-product"><a href="{% url 'edit-product' product.slug %}">Edit</a></p>
+                    {% else %}
+                        <p class="link-buy-product"><a href="{{ product.get_absolute_url }}">More...</a></p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        {% else %}
+            <h3>There are no products in this category</h3>
+        {% endif %}
+    </ul>
+
+{% endblock %}

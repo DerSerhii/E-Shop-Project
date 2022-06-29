@@ -1,0 +1,135 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>{{title}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Latin:wght@300;400&family=Roboto:wght@100&display=swap" rel="stylesheet">
+	<link rel="shortcut icon" href="{% static 'e_shop/images/main.ico' %}" type="image/x-icon"/>
+    <link type="text/css" href="{% static 'e_shop/css/styles.css' %}" rel="stylesheet">
+</head>
+
+<body>
+    <table class="table-page" border=0 cellpadding="0" cellspacing="0">
+    <tr><td valign=top>
+
+    <!-- MAIN MENU -->
+    <div class="header">
+
+        <ul class="mainmenu">
+            <li class="logo"><a href="{% url 'home' %}"><div class="logo"></div></a></li>
+
+            {% if user.is_authenticated %}
+                {% if user.is_superuser %}
+                    {% for m in menu %}
+                        <li><a href="{% url m.url_name %}">{{ m.title }}</a></li>
+                    {% endfor %}
+                    <li class="last"> Admin({{user.username}}) | <a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'wallet' user.id %}">Wallet: {{user.wallet}}₴</a></li>
+                    <li><a href="{% url 'purchase' %}">My purchases</a></li>
+                    <li class="last"> {{user.username}} | <a href="{% url 'logout' %}">Logout</a></li>
+                {% endif %}
+            {% else %}
+                <li class="last"><a href="{% url 'register' %}">Registration</a>
+                               | <a href="{% url 'login' %}">Log in</a></li>
+            {% endif %}
+
+        </ul>
+
+        <div class="clear"></div>
+    </div>
+    <!-- end MAIN MENU -->
+
+
+    <table class="table-content" border=0 cellpadding="0" cellspacing="0">
+    <tr>
+
+    <!-- SIDEBAR LEFT -->
+    <td valign="top" class="left-chapters">
+
+        <ul id="leftchapters">
+            {% if cat_selected == 0 %}
+                <li class="selected">All categories</li>
+            {% else %}
+                <li><a href="{% url 'home' %}">All categories</a></li>
+            {% endif %}
+
+            {% for cat in categories %}
+                {% if cat.product__count > 0 %}
+                    {% if cat.pk == cat_selected %}
+                        {% if user.is_superuser%}
+                            <li class="selected">{{cat.name}}<br>
+                                <a href="{% url 'edit-category' cat.slug%}">[edit this category]</a></li>
+                        {% else %}
+                            <li class="selected">{{cat.name}}</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li><a href="{{ cat.get_absolute_url }}">{{cat.name}}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+    </td>
+    <!-- end SIDEBAR LEFT -->
+
+
+    <td valign="top" class="content">
+
+    <!-- CONTENT -->
+    <div class="content-text">
+        {% block content %}
+        {% endblock %}
+
+        <!-- pagination -->
+        {% if page_obj.has_other_pages %}
+            <nav class="list-pages">
+                <ul>
+                    {% if page_obj.has_previous %}
+                        <li class="page-num">
+                            <a href="?page={{ page_obj.previous_page_number }}">&lt</a>
+                        </li>
+                    {% endif %}
+
+                    {% for p in paginator.page_range %}
+                        {% if page_obj.number == p %}
+                            <li class="page-num page-num-selected">{{ p }}</li>
+                        {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                            <li class="page-num">
+                                <a href="?page={{ p }}">{{ p }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-num">
+                            <a href="?page={{ page_obj.next_page_number }}">&gt</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    </div>
+    <!-- end CONTENT -->
+
+
+    </td></tr></table>
+    </td></tr>
+
+    <!-- FOOTER -->
+    <tr><td valign=top>
+
+    <div id="footer">
+        <p>The best e-shop</p>
+    </div>
+
+    </td></tr></table>
+    <!-- end FOOTER -->
+
+
+</body>
+
+</html>
