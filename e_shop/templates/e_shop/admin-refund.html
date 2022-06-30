@@ -1,0 +1,46 @@
+{% extends 'e_shop/base.html' %}
+
+{% block content %}
+
+    <ul class="list-products">
+        <h1>{{ title }}</h1>
+
+        {% if refunds %}
+            {% for refund in refunds %}
+                <li>
+                    <div class="product-panel">
+                        <p class="first">
+                            Invoice: #{{refund.to_purchase.pk}} | Customer: {{ refund.to_purchase.customer }}
+                        </p>
+                        <p class="last">Purchase time: {{refund.time_purchase}}</p>
+                    </div>
+
+                    <div class="purchase">
+                        <p class="first-p">{{refund.to_purchase.product}}</p>
+                        <p class="last-p">
+                            {{ refund.to_purchase.amount }} x {{ refund.to_purchase.price_at_time_purchase }} =
+                            {% widthratio refund.to_purchase.amount 1 refund.to_purchase.price_at_time_purchase %}
+                        </p>
+                    </div>
+
+                    <div class="clear"></div>
+
+                    <form method="post" action="{% url 'admin-refund-remove' refund.pk %}">
+                        {% csrf_token %}
+                        <input class="link-buy-product" type="submit" value="Reject">
+                    </form>
+
+                    <form method="post" action="{% url 'admin-refund-approve' refund.pk %}">
+                        {% csrf_token %}
+                        <input class="link-buy-product" type="submit" value="Refund">
+                    </form>
+                    <br>
+
+                </li>
+            {% endfor %}
+        {% else %}
+            <h3>No refunds yet</h3>
+        {% endif %}
+    </ul>
+
+{% endblock %}

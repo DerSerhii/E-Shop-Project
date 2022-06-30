@@ -1,0 +1,23 @@
+{% extends 'e_shop/base.html' %}
+
+{% block content %}
+
+    {% if difference %}
+        <h1 class="error-not-money">There is not enough money for this purchase. Need to add {{ difference }} ₴</h1>
+    {% endif %}
+
+    <h1>My wallet</h1>
+    <h3>Current account balance {{ user.wallet }} ₴</h3>
+
+        <form method="post">
+        {% csrf_token %}
+
+        {% for f in form %}
+            <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</p>
+            <div class="form-error">{{ f.errors }}</div>
+        {% endfor %}
+
+        <button type="submit">Fill up a purse</button>
+    </form>
+
+{% endblock %}
