@@ -30,7 +30,8 @@ class ShopHome(DataMixin, ListView):
         # additional context
         title = "Admin-Products" if self.request.user.is_superuser else "E-Shop"
         context_add = self.get_user_context(title=title)
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
     def get_queryset(self):
         return super().get_queryset() \
@@ -50,7 +51,8 @@ class ShowProduct(DataMixin, DetailView):
         # additional context
         context = super().get_context_data(**kwargs)
         context_add = self.get_user_context(title=context['product'])
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
 
 class BuyView(LoginRequiredMixin, CreateView):
@@ -107,7 +109,8 @@ class ShowPurchase(LoginRequiredMixin, DataMixin, ListView):
 
         # additional context from the mixin
         context_add = self.get_user_context(title="E-Shop|MyPurchases")
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
     def get_queryset(self):
         return Purchase.objects.filter(customer=self.request.user)
@@ -131,9 +134,13 @@ class RefundPurchase(LoginRequiredMixin, DataMixin, SingleObjectMixin, View):
                 ("For correct operation, the object must have the attributes of the Purchase class")
 
         if self.check_period_refund():
-            return self.create_refund()
+            PurchaseReturns.objects.get_or_create(to_purchase=self.purchase)
+            message = "The refund request has been sent to the store administration"
         else:
-            return self.refusal_refund()
+            message = "Unfortunately, the refund period has expired"
+        self.create_message(message)
+
+        return redirect("purchase")
 
     def check_period_refund(self):
         current_time = timezone.now()
@@ -141,17 +148,6 @@ class RefundPurchase(LoginRequiredMixin, DataMixin, SingleObjectMixin, View):
         refund_end_time = time_purchase.replace(minute=time_purchase.minute + self.refund_period)
         check = current_time < refund_end_time
         return check
-
-    def create_refund(self):
-        PurchaseReturns.objects.get_or_create(to_purchase=self.purchase)
-        message = "The refund request has been sent to the store administration"
-        self.create_message(message)
-        return redirect("purchase")
-
-    def refusal_refund(self):
-        message = "Unfortunately, the refund period has expired"
-        self.create_message(message)
-        return redirect("purchase")
 
     def create_message(self, message) -> None:
         self.request.session["msg_request_refund"] = [self.purchase.pk, message]
@@ -182,7 +178,9 @@ class WalletCustomer(LoginRequiredMixin, UpdateView):
         current_wallet = self.request.user.wallet
         wallet_form.wallet += current_wallet
 
-        wallet_form.save()
+        with transaction.atomic():
+            wallet_form.save()
+
         return super().form_valid(form=form)
 
 
@@ -207,7 +205,8 @@ class ProductCategory(DataMixin, ListView):
         current_category = Category.objects.get(slug=current_slug)
         context_add = self.get_user_context(title=f"Category-{current_category}",
                                             cat_selected=current_category.id)
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
 
 class RegisterCustomer(DataMixin, CreateView):
@@ -220,8 +219,9 @@ class RegisterCustomer(DataMixin, CreateView):
 
         # additional context
         context_add = self.get_user_context(title='Registration')
-        return dict(list(context.items()) + list(context_add.items()))
-    
+        context.update(context_add)
+        return context
+
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
@@ -237,7 +237,8 @@ class Login(DataMixin, LoginView):
 
         # additional context
         context_add = self.get_user_context(title='Authorization')
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
     def get_success_url(self):
         return reverse_lazy('home')
@@ -262,7 +263,8 @@ class AdminAddProduct(LoginRequiredMixin, UserPassesTestMixin, DataMixin, Create
         # additional context
         context_add = self.get_user_context(title="Admin-Add Product",
                                             action="Add")
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
 
 class AdminAddCategory(LoginRequiredMixin, UserPassesTestMixin, DataMixin, CreateView):
@@ -281,7 +283,8 @@ class AdminAddCategory(LoginRequiredMixin, UserPassesTestMixin, DataMixin, Creat
         # additional context
         context_add = self.get_user_context(title="Admin-Add Category",
                                             action="Add")
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
 
 class AdminEditProduct(LoginRequiredMixin, UserPassesTestMixin, DataMixin, UpdateView):
@@ -301,7 +304,8 @@ class AdminEditProduct(LoginRequiredMixin, UserPassesTestMixin, DataMixin, Updat
         # additional context
         context_add = self.get_user_context(title="Admin-Edit Product",
                                             action="Edit")
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
 
 class AdminEditCategory(LoginRequiredMixin, UserPassesTestMixin, DataMixin, UpdateView):
@@ -321,7 +325,8 @@ class AdminEditCategory(LoginRequiredMixin, UserPassesTestMixin, DataMixin, Upda
         # additional context
         context_add = self.get_user_context(title="Admin-Edit Category",
                                             action="Edit")
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
 
 class AdminShowRefundPurchase(LoginRequiredMixin, UserPassesTestMixin, DataMixin, ListView):
@@ -337,7 +342,8 @@ class AdminShowRefundPurchase(LoginRequiredMixin, UserPassesTestMixin, DataMixin
 
         # additional context from the mixin
         context_add = self.get_user_context(title="Show Refunds")
-        return dict(list(context.items()) + list(context_add.items()))
+        context.update(context_add)
+        return context
 
 
 class AdminRemoveRefundPurchase(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

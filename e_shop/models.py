@@ -18,10 +18,6 @@ class Customer(AbstractUser):
     def __str__(self):
         return self.username
 
-    # def get_absolute_url(self):
-    #     return reverse("customer", kwargs={"cust_id": self.id})
-
-
 class Product(models.Model):
     name = models.CharField(max_length=100, unique=True, db_index=True, verbose_name=_("Name of product"))
     slug = models.SlugField(max_length=100, unique=True, db_index=True, verbose_name="URL")
