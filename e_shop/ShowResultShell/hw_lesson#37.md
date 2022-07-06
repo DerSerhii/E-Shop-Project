@@ -10,3 +10,20 @@
 
 ##### ValidationError ('age'):
 ![](Ex%231-3.png)
+
+### Exercise #2
+
+##### Creation object Customer:
+![](Ex%232-1.png)
+
+##### Creation object Category:
+![](Ex%232-2.png)
+
+##### Creation object Product:
+![](Ex%232-3.png)
+
+##### Creation object Purchase:
+![](Ex%232-4.png)
+
+##### Getting objects:
+![](Ex%232-5.png)

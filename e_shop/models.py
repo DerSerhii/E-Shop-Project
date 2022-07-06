@@ -18,12 +18,13 @@ class Customer(AbstractUser):
     def __str__(self):
         return self.username
 
+
 class Product(models.Model):
     name = models.CharField(max_length=100, unique=True, db_index=True, verbose_name=_("Name of product"))
     slug = models.SlugField(max_length=100, unique=True, db_index=True, verbose_name="URL")
     description = models.TextField(blank=True, verbose_name=_("Description"))
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name=_("Price"))
-    photo = models.ImageField(upload_to="photos/%Y/%m/%d/", verbose_name=_("Photo"))
+    photo = models.ImageField(blank=True, upload_to="photos/%Y/%m/%d/", verbose_name=_("Photo"))
     amount = models.PositiveSmallIntegerField(verbose_name=_("Quantity in stock"))
     category = models.ForeignKey("Category", on_delete=models.PROTECT, verbose_name=_("Product category"))
     is_available = models.BooleanField(default=True, verbose_name=_("Available"))
