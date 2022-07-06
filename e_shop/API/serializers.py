@@ -38,16 +38,6 @@ class CandidateCefrSerializer(serializers.Serializer):
         return data
 
 
-# from e_shop.API.serializers import CandidateCefrSerializer
-# import io
-# from rest_framework.parsers import JSONParser
-# stream = io.BytesIO(b'{"name": "Alex", "sex": "M", "age": "27", "eng_level": "C1"}')
-# data = JSONParser().parse(stream)
-# serializer = CandidateCefrSerializer(data=data)
-# serializer.is_valid(raise_exception=True)
-# serializer.validated_data
-
-
 class CustomerSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -81,6 +71,43 @@ class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
         fields = '__all__'
+
+
+class PurchaseSerializerNew(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    time_purchase = serializers.DateTimeField(read_only=True)
+    customer = CustomerSerializer()
+
+    class Meta:
+        model = Purchase
+        fields = '__all__'
+
+
+class CustomerAllPurchaseSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    purchases = PurchaseSerializer(many=True)
+
+    class Meta:
+        model = Customer
+        fields = ["username", "first_name", "last_name", "email", "password", "wallet", "purchases"]
+
+    
+
+# from e_shop.API.serializers import CustomerAllPurchaseSerializer
+# from e_shop.models import Customer, Purchase, Product
+# data = {'username': '111', 'password': 'django123', 'wallet': 10000.00, 'purchases': [{'product': {'name': 'ttt', 'slug': 'ttt', 'price': 15.00, 'amount': 2, 'category': 1}, 'amount': 1, 'price_at_time_purchase': 15 }]}
+# customer = CustomerAllPurchaseSerializer(data=data)
+# customer.is_valid(raise_exception=True)
+# customer.save()
+
+# from e_shop.API.serializers import CandidateCefrSerializer
+# import io
+# from rest_framework.parsers import JSONParser
+# stream = io.BytesIO(b'{"name": "Alex", "sex": "M", "age": "27", "eng_level": "C1"}')
+# data = JSONParser().parse(stream)
+# serializer = CandidateCefrSerializer(data=data)
+# serializer.is_valid(raise_exception=True)
+# serializer.validated_data
 
 # from e_shop.API.serializers import CustomerSerializer, PurchaseSerializer, ProductSerializer, CategorySerializer
 # from e_shop.models import Customer, Purchase, Product, Category
@@ -119,3 +146,15 @@ class PurchaseSerializer(serializers.ModelSerializer):
 # pur = Purchase.objects.first()
 # pur_ser = PurchaseSerializer(pur)
 # pur_ser.data
+#
+# from e_shop.API.serializers import PurchaseSerializerNew
+# from e_shop.models import Purchase
+# pur_new = Purchase.objects.first()
+# pur_ser = PurchaseSerializerNew(pur_new)
+# pur_ser.data
+#
+# from e_shop.API.serializers import CustomerAllPurchaseSerializer
+# from e_shop.models import Customer
+# cust = Customer.objects.last()
+# cust_ser = CustomerAllPurchaseSerializer(cust)
+# cust_ser.data

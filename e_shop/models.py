@@ -42,7 +42,7 @@ class Product(models.Model):
 
 
 class Purchase(models.Model):
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='purchases')
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     amount = models.PositiveSmallIntegerField(validators=[MinValueValidator(1),
                                                           MaxValueValidator(1000)])

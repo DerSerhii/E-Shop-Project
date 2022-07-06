@@ -27,3 +27,13 @@
 
 ##### Getting objects:
 ![](Ex%232-5.png)
+
+### Exercise #3
+
+##### Getting object with data customer:
+![](Ex%233.png)
+
+### Exercise #4
+
+##### Getting data user:
+![](Ex%234.png)
