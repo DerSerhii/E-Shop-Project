@@ -91,12 +91,45 @@ class CustomerAllPurchaseSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ["username", "first_name", "last_name", "email", "password", "wallet", "purchases"]
 
-    
 
-# from e_shop.API.serializers import CustomerAllPurchaseSerializer
+class PurchaseSerializerWithoutCustomer(serializers.ModelSerializer):
+    product = ProductSerializer()
+
+    class Meta:
+        model = Purchase
+        fields = ["product", "amount", "price_at_time_purchase"]
+
+
+class CustomerAllPurchaseSerializerTwo(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    purchases = PurchaseSerializerWithoutCustomer(many=True)
+
+    class Meta:
+        model = Customer
+        fields = ["username", "password", "wallet", "purchases"]
+
+    def create(self, validated_data):
+        purchases = validated_data.pop("purchases")
+
+        customer = Customer(**validated_data)
+        customer.set_password(validated_data["password"])
+        customer.save()
+        
+        for pur in purchases:
+            product = Product.objects.create(**pur["product"])
+    
+            Purchase.objects.create(customer=customer,
+                                    product=product,
+                                    amount=pur["amount"],
+                                    price_at_time_purchase=pur["price_at_time_purchase"],
+                                    )
+        return customer
+
+
+# from e_shop.API.serializers import CustomerAllPurchaseSerializerTwo
 # from e_shop.models import Customer, Purchase, Product
-# data = {'username': '111', 'password': 'django123', 'wallet': 10000.00, 'purchases': [{'product': {'name': 'ttt', 'slug': 'ttt', 'price': 15.00, 'amount': 2, 'category': 1}, 'amount': 1, 'price_at_time_purchase': 15 }]}
-# customer = CustomerAllPurchaseSerializer(data=data)
+# data = {'username': 'test_ex5', 'password': 'django123', 'wallet': 10000.00, 'purchases': [{'product': {'name': 'test_prod1', 'slug': 't_p-1', 'price': 15.00, 'amount': 2, 'category': 1}, 'amount': 1, 'price_at_time_purchase': 15 }, {'product': {'name': 'test_prod2', 'slug': 't_p-2', 'price': 15.00, 'amount': 2, 'category': 1}, 'amount': 1, 'price_at_time_purchase': 15 }]}
+# customer = CustomerAllPurchaseSerializerTwo(data=data)
 # customer.is_valid(raise_exception=True)
 # customer.save()
 

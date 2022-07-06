@@ -37,3 +37,8 @@
 
 ##### Getting data user:
 ![](Ex%234.png)
+
+### Exercise #5 
+
+##### Getting objects:
+![](Ex%235.png)
