@@ -17,12 +17,30 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
+from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from online_shop import settings
+from e_shop.API.resources import RegisterView, LogoutView, LogoutAllView, \
+    ProductViewSet, PurchaseViewSet, CategoryViewSet, RefundPurchaseViewSet
+
+router = routers.SimpleRouter()
+router.register('shop-home', ProductViewSet)
+router.register('category', CategoryViewSet)
+router.register('purchase', PurchaseViewSet)
+router.register('refund', RefundPurchaseViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('e_shop.urls')),
+    path('api/', include(router.urls)),
+    path('api-token-auth/', obtain_auth_token),
+    path('api/login/token-jwd/', TokenObtainPairView.as_view()),
+    path('api/login/token-jwd/refresh/', TokenRefreshView.as_view()),
+    path('api/logout/', LogoutView.as_view()),
+    path('api/logout-all/', LogoutAllView.as_view()),
+    path('api/register/', RegisterView.as_view()),
 ]
 
 if settings.DEBUG:
